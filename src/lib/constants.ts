@@ -1,0 +1,17 @@
+export const SPECIALITES = [
+  "Cardiologie",
+  "Diabétologie",
+  "Endocrinologie",
+  "Dentiste",
+  "Ophtalmologie",
+  "Psychiatrie",
+  "Drépanocytose",
+  "Obstétrique",
+  "Gynécologie",
+  "Pédiatrie",
+  "Pneumologie",
+  "Oncologie",
+  "Neurologie",
+  "Médecine générale",
+  "Urgences",
+] as const;

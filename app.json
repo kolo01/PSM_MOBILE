@@ -1,17 +1,20 @@
 {
   "expo": {
-    "name": "my-health-journal-mobile",
+    "name": "PSM",
     "slug": "my-health-journal-mobile",
     "version": "1.0.0",
+    "scheme": "psm",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "ci.psm.mobile"
     },
     "android": {
+      "package": "ci.psm.mobile",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#C0000C",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -20,6 +23,19 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5cd775d1-2c61-4873-a08f-7d4775d0aac3"
+      }
     }
   }
 }
