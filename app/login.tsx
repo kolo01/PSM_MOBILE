@@ -12,42 +12,22 @@ function errorMessage(err: unknown, fallback: string): string {
 }
 
 export default function LoginScreen() {
-  const { requestPatientOtp, verifyPatientOtp } = useAuth();
+  const { verifyPatientOtp } = useAuth();
   const router = useRouter();
-  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [phone, setPhone] = useState("+225 ");
   const [pin, setPin] = useState("");
-  const [otp, setOtp] = useState("");
   const [pending, setPending] = useState(false);
 
-  const goStep2 = () => {
+  const handleLogin = async () => {
     if (!phone.trim()) return Toast.show({ type: "error", text1: "Numéro de téléphone requis" });
-    setStep(2);
-  };
-
-  const sendOtp = async () => {
     if (pin.length < 4) return Toast.show({ type: "error", text1: "PIN à 4 ou 6 chiffres requis" });
     setPending(true);
     try {
-      await requestPatientOtp(phone, pin);
-      Toast.show({ type: "success", text1: "Code OTP envoyé par SMS" });
-      setStep(3);
-    } catch (err) {
-      Toast.show({ type: "error", text1: errorMessage(err, "Échec de l'envoi du SMS") });
-    } finally {
-      setPending(false);
-    }
-  };
-
-  const confirmLogin = async () => {
-    if (otp.length !== 6) return Toast.show({ type: "error", text1: "Code OTP à 6 chiffres requis" });
-    setPending(true);
-    try {
-      await verifyPatientOtp(phone, pin, otp);
+      await verifyPatientOtp(phone, pin);
       Toast.show({ type: "success", text1: "Connexion réussie" });
       router.replace("/(tabs)/dashboard");
     } catch (err) {
-      Toast.show({ type: "error", text1: errorMessage(err, "Code OTP invalide") });
+      Toast.show({ type: "error", text1: errorMessage(err, "Téléphone ou PIN incorrect") });
     } finally {
       setPending(false);
     }
@@ -63,71 +43,37 @@ export default function LoginScreen() {
           Connexion à PSM
         </Text>
         <Text style={styles.subtitle}>
-          Connectez-vous avec votre numéro de téléphone, votre PIN, et confirmez par OTP SMS.
+          Connectez-vous avec votre numéro de téléphone et votre PIN.
         </Text>
 
-        <Stepper step={step} labels={["Téléphone", "PIN", "OTP"]} />
-
-        {step === 1 && (
-          <View style={styles.form}>
-            <TextInput
-              mode="outlined"
-              label="Numéro de téléphone"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-            />
-            <Button mode="contained" onPress={goStep2} buttonColor={colors.primary}>
-              Continuer
-            </Button>
-          </View>
-        )}
-
-        {step === 2 && (
-          <View style={styles.form}>
-            <TextInput
-              mode="outlined"
-              label="Code PIN"
-              value={pin}
-              onChangeText={(v) => setPin(v.replace(/\D/g, "").slice(0, 6))}
-              keyboardType="number-pad"
-              secureTextEntry
-              maxLength={6}
-            />
-            <Text style={styles.hint}>4 ou 6 chiffres choisis lors de votre inscription.</Text>
-            <Button
-              mode="contained"
-              onPress={sendOtp}
-              loading={pending}
-              disabled={pending}
-              buttonColor={colors.primary}
-            >
-              Recevoir le code OTP
-            </Button>
-          </View>
-        )}
-
-        {step === 3 && (
-          <View style={styles.form}>
-            <TextInput
-              mode="outlined"
-              label="Code reçu par SMS"
-              value={otp}
-              onChangeText={(v) => setOtp(v.replace(/\D/g, "").slice(0, 6))}
-              keyboardType="number-pad"
-              maxLength={6}
-            />
-            <Button
-              mode="contained"
-              onPress={confirmLogin}
-              loading={pending}
-              disabled={pending}
-              buttonColor={colors.primary}
-            >
-              Se connecter
-            </Button>
-          </View>
-        )}
+        <View style={styles.form}>
+          <TextInput
+            mode="outlined"
+            label="Numéro de téléphone"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
+          <TextInput
+            mode="outlined"
+            label="Code PIN"
+            value={pin}
+            onChangeText={(v) => setPin(v.replace(/\D/g, "").slice(0, 6))}
+            keyboardType="number-pad"
+            secureTextEntry
+            maxLength={6}
+          />
+          <Text style={styles.hint}>4 ou 6 chiffres choisis lors de votre inscription.</Text>
+          <Button
+            mode="contained"
+            onPress={handleLogin}
+            loading={pending}
+            disabled={pending}
+            buttonColor={colors.primary}
+          >
+            Se connecter
+          </Button>
+        </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Première fois ? </Text>

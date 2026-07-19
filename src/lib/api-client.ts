@@ -113,10 +113,10 @@ export function requestPatientOtp(telephone: string, pin: string): Promise<{ suc
   });
 }
 
-export function verifyPatientOtp(telephone: string, pin: string, code: string): Promise<AuthTokens> {
+export function verifyPatientOtp(telephone: string, pin: string): Promise<AuthTokens> {
   return apiFetch("/auth/patient/verify-otp", {
     method: "POST",
-    body: JSON.stringify({ telephone, pin, code }),
+    body: JSON.stringify({ telephone, pin }),
   });
 }
 

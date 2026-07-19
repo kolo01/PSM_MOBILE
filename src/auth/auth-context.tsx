@@ -7,7 +7,7 @@ type AuthState = {
   hydrated: boolean;
   registerPatient: (payload: api.RegisterPatientPayload) => Promise<void>;
   requestPatientOtp: (telephone: string, pin: string) => Promise<void>;
-  verifyPatientOtp: (telephone: string, pin: string, code: string) => Promise<void>;
+  verifyPatientOtp: (telephone: string, pin: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -47,8 +47,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     requestPatientOtp: async (telephone, pin) => {
       await api.requestPatientOtp(telephone, pin);
     },
-    verifyPatientOtp: async (telephone, pin, code) =>
-      afterAuth(await api.verifyPatientOtp(telephone, pin, code)),
+    verifyPatientOtp: async (telephone, pin) =>
+      afterAuth(await api.verifyPatientOtp(telephone, pin)),
     logout: async () => {
       const refreshToken = await api.getRefreshToken();
       if (refreshToken) {
