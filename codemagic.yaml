@@ -35,13 +35,8 @@ workflows:
           
       - name: Créer et télécharger les certificats Apple
         script: |
-          # 1. Initialise le trousseau de clés sécurisé du serveur
           keychain initialize
-          
-          # 2. Se connecte à Apple et CRÉE le profil s'il n'existe pas (--create)
           app-store-connect fetch-signing-files "ci.psm.mobile" --type IOS_APP_STORE --create
-          
-          # 3. Ajoute les certificats récupérés au trousseau et au projet Xcode
           keychain add-certificates
           xcode-project use-profiles
           
@@ -49,8 +44,7 @@ workflows:
         script: |
           xcode-project build-ipa \
             --workspace "ios/PSM.xcworkspace" \
-            --scheme "PSM" \
-            --distribution-type app_store
+            --scheme "PSM"
           
     artifacts:
       - android/app/build/outputs/bundle/release/**/*.aab
