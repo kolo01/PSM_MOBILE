@@ -3,15 +3,39 @@ workflows:
     name: Build PSM Mobile (Android & iOS)
     max_build_duration: 120
     environment:
+      # On appelle notre groupe de variables sécurisées
+      groups:
+        - keystore_credentials
       node: 20.x
       xcode: latest
       cocoapods: default
     scripts:
       - name: Installer les dépendances npm
         script: npm install
+        
       - name: Générer le code natif (Expo Prebuild)
         script: npx expo prebuild --clean
+        
+      - name: Préparer le fichier Keystore pour Android
+        script: |
+          # Décodage de la variable sécurisée vers un vrai fichier .keystore
+          echo $CM_KEYSTORE | base64 --decode > $CM_BUILD_DIR/android-upload-key.keystore
+          
+      - name: Compiler l'archive Android (Release .aab)
+        script: |
+          cd android
+          # Compilation avec injection directe des identifiants de signature
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=$CM_BUILD_DIR/android-upload-key.keystore \
+            -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
+            
       - name: Installer les dépendances iOS (CocoaPods)
         script: |
           cd ios
           pod install
+          
+    # On indique à Codemagic où récupérer le fichier compilé pour le télécharger
+    artifacts:
+      - android/app/build/outputs/bundle/release/**/*.aab
