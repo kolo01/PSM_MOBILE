@@ -1,0 +1,17 @@
+workflows:
+  expo-release-build:
+    name: Build PSM Mobile (Android & iOS)
+    max_build_duration: 120
+    environment:
+      node: 20.x
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Installer les dépendances npm
+        script: npm install
+      - name: Générer le code natif (Expo Prebuild)
+        script: npx expo prebuild --clean
+      - name: Installer les dépendances iOS (CocoaPods)
+        script: |
+          cd ios
+          pod install
