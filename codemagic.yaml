@@ -2,11 +2,10 @@ workflows:
   expo-release-build:
     name: Build PSM Mobile (Android & iOS)
     max_build_duration: 120
-    environment:
-      # On appelle notre groupe de variables sécurisées
+   environment:
       groups:
         - keystore_credentials
-      node: 20.x
+      node: 20  # <-- Remplace "20.x" par "20"
       xcode: latest
       cocoapods: default
     scripts:
