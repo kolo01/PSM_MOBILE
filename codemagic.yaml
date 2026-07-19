@@ -5,6 +5,10 @@ workflows:
     environment:
       groups:
         - keystore_credentials
+      # Configuration de la signature automatique iOS
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: ci.psm.mobile
       node: 20
       xcode: latest
       cocoapods: default
@@ -33,5 +37,15 @@ workflows:
           cd ios
           pod install
           
+      - name: Compiler l'application iOS (Release .ipa)
+        script: |
+          # Utilisation de l'outil intégré de Codemagic pour compiler l'IPA
+          xcode-project build-ipa \
+            --workspace "ios/PSM.xcworkspace" \
+            --scheme "PSM" \
+            --distribution-type app_store
+          
     artifacts:
+      # On récupère les deux fichiers (Android et iOS) à la fin du build
       - android/app/build/outputs/bundle/release/**/*.aab
+      - build/ios/ipa/*.ipa
