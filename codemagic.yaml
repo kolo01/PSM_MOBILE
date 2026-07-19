@@ -5,10 +5,6 @@ workflows:
     environment:
       groups:
         - keystore_credentials
-      # Configuration de la signature automatique iOS
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: ci.psm.mobile
       node: 20
       xcode: latest
       cocoapods: default
@@ -37,15 +33,25 @@ workflows:
           cd ios
           pod install
           
+      - name: Créer et télécharger les certificats Apple
+        script: |
+          # 1. Initialise le trousseau de clés sécurisé du serveur
+          keychain initialize
+          
+          # 2. Se connecte à Apple et CRÉE le profil s'il n'existe pas (--create)
+          app-store-connect fetch-signing-files "ci.psm.mobile" --type IOS_APP_STORE --create
+          
+          # 3. Ajoute les certificats récupérés au trousseau et au projet Xcode
+          keychain add-certificates
+          xcode-project use-profiles
+          
       - name: Compiler l'application iOS (Release .ipa)
         script: |
-          # Utilisation de l'outil intégré de Codemagic pour compiler l'IPA
           xcode-project build-ipa \
             --workspace "ios/PSM.xcworkspace" \
             --scheme "PSM" \
             --distribution-type app_store
           
     artifacts:
-      # On récupère les deux fichiers (Android et iOS) à la fin du build
       - android/app/build/outputs/bundle/release/**/*.aab
       - build/ios/ipa/*.ipa
