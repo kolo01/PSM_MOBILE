@@ -5,6 +5,10 @@ workflows:
     environment:
       groups:
         - keystore_credentials
+      # Activation de la signature automatique native via l'intégration Apple
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: ci.psm.mobile
       node: 20
       xcode: latest
       cocoapods: default
@@ -32,13 +36,6 @@ workflows:
         script: |
           cd ios
           pod install
-          
-      - name: Créer et télécharger les certificats Apple
-        script: |
-          keychain initialize
-          app-store-connect fetch-signing-files "ci.psm.mobile" --type IOS_APP_STORE --create
-          keychain add-certificates
-          xcode-project use-profiles
           
       - name: Compiler l'application iOS (Release .ipa)
         script: |
