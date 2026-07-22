@@ -18,7 +18,7 @@ workflows:
           cd ios
           pod install
           
-      - name: Récupérer les certificats et profils iOS
+      - name: Récupérer les certificats et profils iOS manuellement
         script: |
           keychain initialize
           app-store-connect fetch-signing-files "ci.psm.mobile" --type IOS_APP_STORE --create
@@ -27,11 +27,9 @@ workflows:
           
       - name: Compiler l'application iOS (Release .ipa)
         script: |
-          # Ajout explicite du DEVELOPMENT_TEAM pour forcer Xcode à lier le profil
           xcode-project build-ipa \
             --workspace "ios/PSM.xcworkspace" \
-            --scheme "PSM" \
-            -- DEVELOPMENT_TEAM="P534537N35"
+            --scheme "PSM"
           
     artifacts:
       - build/ios/ipa/*.ipa
