@@ -9,8 +9,6 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: ci.psm.mobile
-        # Ajout de la clé API pour forcer Codemagic à interroger le bon compte Apple
-        key_id: 73V6T5653A
     scripts:
       - name: Installer les dépendances npm
         script: npm install
