@@ -1,10 +1,8 @@
 workflows:
-  expo-release-build:
-    name: Build PSM Mobile (Android & iOS)
+  expo-ios-build:
+    name: Build PSM Mobile (iOS)
     max_build_duration: 120
     environment:
-      groups:
-        - keystore_credentials
       node: 20
       xcode: latest
       cocoapods: default
@@ -15,37 +13,25 @@ workflows:
       - name: Générer le code natif (Expo Prebuild)
         script: npx expo prebuild --clean
         
-      - name: Préparer le fichier Keystore pour Android
-        script: |
-          echo $CM_KEYSTORE | base64 --decode > $CM_BUILD_DIR/android-upload-key.keystore
-          
-      - name: Compiler l'archive Android (Release .aab)
-        script: |
-          cd android
-          ./gradlew bundleRelease \
-            -Pandroid.injected.signing.store.file=$CM_BUILD_DIR/android-upload-key.keystore \
-            -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD \
-            -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS \
-            -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
-            
       - name: Installer les dépendances iOS (CocoaPods)
         script: |
           cd ios
           pod install
           
-      - name: Récupérer les certificats et profils iOS manuellement
+      - name: Récupérer les certificats et profils iOS
         script: |
           keychain initialize
-          app-store-connect fetch-signing-files "ci.psm.mobile" --type IOS_APP_STORE
+          app-store-connect fetch-signing-files "ci.psm.mobile" --type IOS_APP_STORE --create
           keychain add-certificates
           xcode-project use-profiles
           
       - name: Compiler l'application iOS (Release .ipa)
         script: |
+          # Ajout explicite du DEVELOPMENT_TEAM pour forcer Xcode à lier le profil
           xcode-project build-ipa \
             --workspace "ios/PSM.xcworkspace" \
-            --scheme "PSM"
+            --scheme "PSM" \
+            -- DEVELOPMENT_TEAM="P534537N35"
           
     artifacts:
-      - android/app/build/outputs/bundle/release/**/*.aab
       - build/ios/ipa/*.ipa
