@@ -48,6 +48,7 @@ export default function TabsLayout() {
         name="more"
         options={{ title: "Plus", tabBarIcon: ({ color, size }) => <Menu color={color} size={size} /> }}
       />
+      <Tabs.Screen name="profil" options={{ href: null }} />
     </Tabs>
   );
 }

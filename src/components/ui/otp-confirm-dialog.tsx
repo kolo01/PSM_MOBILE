@@ -12,7 +12,15 @@ interface OtpConfirmDialogProps {
   purpose?: GenericOtpPurpose;
   title: string;
   description?: string;
-  onConfirmed: () => void;
+  onConfirmed: (code: string) => void | Promise<void>;
+  /**
+   * Si true, le code n'est pas consommé ici : `onConfirmed` reçoit le code brut
+   * et doit le faire vérifier par le endpoint métier (ex: changement de
+   * téléphone, où le serveur doit revalider l'OTP lui-même). Sinon (défaut),
+   * le dialog vérifie le code via l'endpoint OTP générique avant d'appeler
+   * `onConfirmed`.
+   */
+  verifyOnServer?: boolean;
 }
 
 /** Dialog partagé : envoie un OTP à l'ouverture, vérifie le code saisi, puis déclenche l'action. */
@@ -24,6 +32,7 @@ export function OtpConfirmDialog({
   title,
   description,
   onConfirmed,
+  verifyOnServer = false,
 }: OtpConfirmDialogProps) {
   const [code, setCode] = useState("");
   const [sending, setSending] = useState(false);
@@ -53,11 +62,16 @@ export function OtpConfirmDialog({
     }
     setVerifying(true);
     try {
-      await verifyGenericOtp(destinataire, purpose, code);
-      onConfirmed();
+      if (verifyOnServer) {
+        await onConfirmed(code);
+      } else {
+        await verifyGenericOtp(destinataire, purpose, code);
+        await onConfirmed(code);
+      }
       onDismiss();
-    } catch {
-      Toast.show({ type: "error", text1: "Code invalide ou expiré" });
+    } catch (err) {
+      const text1 = verifyOnServer && err instanceof Error ? err.message : "Code invalide ou expiré";
+      Toast.show({ type: "error", text1 });
     } finally {
       setVerifying(false);
     }

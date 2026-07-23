@@ -1,5 +1,6 @@
 import { useRouter } from "expo-router";
 import {
+  ChevronRight,
   FlaskConical,
   History,
   LogOut,
@@ -10,7 +11,7 @@ import {
   Syringe,
   User,
 } from "lucide-react-native";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 import Toast from "react-native-toast-message";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +28,6 @@ const PHASE_2_SCREENS = [
   { icon: Shield, label: "Assurances" },
   { icon: ShieldCheck, label: "Mes accès" },
   { icon: History, label: "Journal" },
-  { icon: User, label: "Profil" },
 ];
 
 export default function MoreScreen() {
@@ -51,6 +51,13 @@ export default function MoreScreen() {
       </View>
 
       <View style={styles.list}>
+        <Pressable style={styles.row} onPress={() => router.push("/(tabs)/profil")}>
+          <View style={styles.rowGap}>
+            <User size={18} color={colors.mutedForeground} />
+            <Text style={styles.rowLabel}>Profil</Text>
+          </View>
+          <ChevronRight size={18} color={colors.mutedForeground} />
+        </Pressable>
         {PHASE_2_SCREENS.map(({ icon: Icon, label }) => (
           <View key={label} style={styles.row}>
             <View style={styles.rowGap}>
