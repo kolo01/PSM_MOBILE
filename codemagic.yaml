@@ -1,11 +1,14 @@
-expo-ios-build:
+workflows:
+  # --------------------------------------------------
+  # WORKFLOW iOS
+  # --------------------------------------------------
+  expo-ios-build:
     name: Build PSM Mobile (iOS)
     max_build_duration: 120
     environment:
       node: 20
       xcode: latest
       cocoapods: default
-      # AUCUN BLOC ios_signing ICI
     scripts:
       - name: Installer les dépendances npm
         script: npm install
@@ -33,3 +36,35 @@ expo-ios-build:
           
     artifacts:
       - build/ios/ipa/*.ipa
+
+  # --------------------------------------------------
+  # WORKFLOW ANDROID
+  # --------------------------------------------------
+  expo-android-build:
+    name: Build PSM Mobile (Android)
+    max_build_duration: 120
+    environment:
+      node: 20
+      java: 17
+      android_signing:
+        - psm_keystore
+    scripts:
+      - name: Installer les dépendances npm
+        script: npm install
+        
+      - name: Générer le code natif Android (Expo Prebuild)
+        script: npx expo prebuild --platform android --clean
+        
+      - name: Compiler l'application Android (App Bundle pour le Play Store)
+        script: |
+          cd android
+          ./gradlew bundleRelease
+          
+      - name: Compiler l'application Android (APK pour test direct)
+        script: |
+          cd android
+          ./gradlew assembleRelease
+          
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+      - android/app/build/outputs/apk/release/*.apk
