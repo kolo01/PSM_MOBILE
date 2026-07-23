@@ -1,4 +1,7 @@
 workflows:
+  # --------------------------------------------------
+  # WORKFLOW iOS
+  # --------------------------------------------------
   expo-ios-build:
     name: Build PSM Mobile (iOS)
     max_build_duration: 120
@@ -6,7 +9,7 @@ workflows:
       node: 20
       xcode: latest
       cocoapods: default
-      # Le cache d'Apple est désormais à jour. Codemagic va trouver le profil.
+      # On utilise l'intégration native qui fonctionne maintenant avec ta clé
       ios_signing:
         distribution_type: app_store
         bundle_identifier: ci.psm.mobile
@@ -14,8 +17,8 @@ workflows:
       - name: Installer les dépendances npm
         script: npm install
         
-      - name: Générer le code natif (Expo Prebuild)
-        script: npx expo prebuild --clean
+      - name: Générer le code natif iOS (Expo Prebuild)
+        script: npx expo prebuild --platform ios --clean
         
       - name: Installer les dépendances iOS (CocoaPods)
         script: |
@@ -27,6 +30,36 @@ workflows:
           xcode-project build-ipa \
             --workspace "ios/PSM.xcworkspace" \
             --scheme "PSM"
-            
+          
     artifacts:
       - build/ios/ipa/*.ipa
+
+  # --------------------------------------------------
+  # WORKFLOW ANDROID
+  # --------------------------------------------------
+  expo-android-build:
+    name: Build PSM Mobile (Android)
+    max_build_duration: 120
+    environment:
+      node: 20
+      java: 17
+    scripts:
+      - name: Installer les dépendances npm
+        script: npm install
+        
+      - name: Générer le code natif Android (Expo Prebuild)
+        script: npx expo prebuild --platform android --clean
+        
+      - name: Compiler l'application Android (App Bundle pour le Play Store)
+        script: |
+          cd android
+          ./gradlew bundleRelease
+          
+      - name: Compiler l'application Android (APK pour test direct)
+        script: |
+          cd android
+          ./gradlew assembleRelease
+          
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+      - android/app/build/outputs/apk/release/*.apk
