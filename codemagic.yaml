@@ -9,6 +9,10 @@ workflows:
       node: 20
       xcode: latest
       cocoapods: default
+      # Le système natif est de retour, il va gérer Expo correctement
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: ci.psm.mobile
     scripts:
       - name: Installer les dépendances npm
         script: npm install
@@ -20,13 +24,6 @@ workflows:
         script: |
           cd ios
           pod install
-          
-      - name: Télécharger les profils et forcer la signature
-        script: |
-          keychain initialize
-          app-store-connect fetch-signing-files "ci.psm.mobile" --type IOS_APP_STORE --create
-          keychain add-certificates
-          xcode-project use-profiles
           
       - name: Compiler l'application iOS (Release .ipa)
         script: |
