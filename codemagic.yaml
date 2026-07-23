@@ -1,26 +1,74 @@
-{
-  "expo": {
-    "name": "PSM",
-    "slug": "my-health-journal-mobile",
-    "version": "1.1.1",
-    "scheme": "psm",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "ci.psm.mobile",
-      "appleTeamId": "P534537N35",
-      "buildNumber": "4"
-    },
-    "android": {
-      "package": "ci.psm.mobile",
-      "versionCode": 4,
-      "adaptiveIcon": {
-        "backgroundColor": "#C0000C",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false
-    }
+workflows:
+  # --------------------------------------------------
+  # WORKFLOW iOS
+  # --------------------------------------------------
+  expo-ios-build:
+    name: Build PSM Mobile (iOS)
+    max_build_duration: 120
+    environment:
+      node: 20
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: ci.psm.mobile
+    scripts:
+      - name: Installer les dépendances npm
+        script: npm install
+        
+      - name: Générer le code natif iOS (Expo Prebuild)
+        script: npx expo prebuild --platform ios --clean
+        
+      - name: Installer les dépendances iOS (CocoaPods)
+        script: |
+          cd ios
+          pod install
+          
+      - name: Compiler l'application iOS (Release .ipa)
+        script: |
+          xcode-project build-ipa \
+            --workspace "ios/PSM.xcworkspace" \
+            --scheme "PSM"
+          
+    artifacts:
+      - build/ios/ipa/*.ipa
+
+  # --------------------------------------------------
+  # WORKFLOW ANDROID
+  # --------------------------------------------------
+  expo-android-build:
+    name: Build PSM Mobile (Android)
+    max_build_duration: 120
+    environment:
+      node: 20
+      java: 17
+      android_signing:
+        - psm_keystore
+    scripts:
+      - name: Installer les dépendances npm
+        script: npm install
+        
+      - name: Générer le code natif Android (Expo Prebuild)
+        script: npx expo prebuild --platform android --clean
+        
+      - name: Compiler l'application Android (App Bundle pour le Play Store)
+        script: |
+          cd android
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=$CM_KEYSTORE_PATH \
+            -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
+          
+      - name: Compiler l'application Android (APK pour test direct)
+        script: |
+          cd android
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=$CM_KEYSTORE_PATH \
+            -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
+          
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+      - android/app/build/outputs/apk/release/*.apk
