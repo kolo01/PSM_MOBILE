@@ -22,9 +22,8 @@
       "package": "ci.psm.mobile",
       "versionCode": 6,
       "adaptiveIcon": {
-        "backgroundColor": "#C0000C",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png"
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/icon.png"
       },
       "predictiveBackGestureEnabled": false
     },
