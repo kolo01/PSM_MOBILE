@@ -16,16 +16,15 @@
       "supportsTablet": true,
       "bundleIdentifier": "ci.psm.mobile",
       "appleTeamId": "P534537N35",
-      "buildNumber": "5"
+      "buildNumber": "6"
     },
     "android": {
       "package": "ci.psm.mobile",
-      "versionCode": 5,
+      "versionCode": 6,
       "adaptiveIcon": {
         "backgroundColor": "#C0000C",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundImage": "./assets/android-icon-background.png"
       },
       "predictiveBackGestureEnabled": false
     },
