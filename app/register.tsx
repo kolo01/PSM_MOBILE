@@ -12,6 +12,8 @@ export default function RegisterScreen() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [pending, setPending] = useState(false);
+  const [showPin, setShowPin] = useState(false);
+  const [showPin2, setShowPin2] = useState(false);
   const [data, setData] = useState({
     telephone: "+225 ",
     cmu: "",
@@ -28,13 +30,19 @@ export default function RegisterScreen() {
     if (data.pin !== data.pin2) return Toast.show({ type: "error", text1: "Les codes PIN ne correspondent pas" });
     if (data.pin.length < 4) return Toast.show({ type: "error", text1: "PIN à 4 ou 6 chiffres" });
     setPending(true);
+    let formattedDate = data.naissance;
+    const parts = data.naissance.split("-");
+    if (parts.length === 3) {
+      formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert JJ-MM-AAAA to YYYY-MM-DD
+    }
+
     try {
       await registerPatient({
         telephone: data.telephone,
         idCmu: data.cmu || undefined,
         nom: data.nom,
         prenom: data.prenom,
-        dateNaissance: data.naissance,
+        dateNaissance: formattedDate,
         sexe: data.sexe,
         pin: data.pin,
       });
@@ -101,10 +109,22 @@ export default function RegisterScreen() {
               />
               <TextInput
                 mode="outlined"
-                label="Date de naissance * (AAAA-MM-JJ)"
+                label="Date de naissance * (JJ-MM-AAAA)"
                 value={data.naissance}
-                onChangeText={(v) => set("naissance", v)}
-                placeholder="1990-01-01"
+                onChangeText={(text) => {
+                  let cleaned = text.replace(/\D/g, "");
+                  if (cleaned.length > 8) cleaned = cleaned.slice(0, 8);
+                  let formatted = cleaned;
+                  if (cleaned.length >= 5) {
+                    formatted = `${cleaned.slice(0, 2)}-${cleaned.slice(2, 4)}-${cleaned.slice(4)}`;
+                  } else if (cleaned.length >= 3) {
+                    formatted = `${cleaned.slice(0, 2)}-${cleaned.slice(2)}`;
+                  }
+                  set("naissance", formatted);
+                }}
+                keyboardType="number-pad"
+                placeholder="JJ-MM-AAAA"
+                maxLength={10}
               />
               <Text style={styles.fieldLabel}>Sexe *</Text>
               <RadioButton.Group onValueChange={(v) => set("sexe", v)} value={data.sexe}>
@@ -130,8 +150,9 @@ export default function RegisterScreen() {
                 value={data.pin}
                 onChangeText={(v) => set("pin", v.replace(/\D/g, "").slice(0, 6))}
                 keyboardType="number-pad"
-                secureTextEntry
+                secureTextEntry={!showPin}
                 maxLength={6}
+                right={<TextInput.Icon icon={showPin ? "eye-off" : "eye"} onPress={() => setShowPin(!showPin)} />}
               />
               <TextInput
                 mode="outlined"
@@ -139,8 +160,9 @@ export default function RegisterScreen() {
                 value={data.pin2}
                 onChangeText={(v) => set("pin2", v.replace(/\D/g, "").slice(0, 6))}
                 keyboardType="number-pad"
-                secureTextEntry
+                secureTextEntry={!showPin2}
                 maxLength={6}
+                right={<TextInput.Icon icon={showPin2 ? "eye-off" : "eye"} onPress={() => setShowPin2(!showPin2)} />}
               />
               <Text style={styles.hint}>
                 En créant votre carnet, vous acceptez la politique de confidentialité PSM (RGPD).

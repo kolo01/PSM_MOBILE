@@ -23,7 +23,7 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.mutedForeground,
-        tabBarStyle: { borderTopColor: colors.border, backgroundColor: colors.background },
+        tabBarStyle: { borderTopColor: colors.border },
       }}
     >
       <Tabs.Screen
