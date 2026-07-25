@@ -9,7 +9,6 @@ workflows:
       node: 20
       xcode: latest
       cocoapods: default
-      # On utilise l'intégration native qui fonctionne maintenant avec ta clé
       ios_signing:
         distribution_type: app_store
         bundle_identifier: ci.psm.mobile
@@ -43,6 +42,8 @@ workflows:
     environment:
       node: 20
       java: 17
+      android_signing:
+        - psm_keystore
     scripts:
       - name: Installer les dépendances npm
         script: npm install
@@ -53,12 +54,20 @@ workflows:
       - name: Compiler l'application Android (App Bundle pour le Play Store)
         script: |
           cd android
-          ./gradlew bundleRelease
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=$CM_KEYSTORE_PATH \
+            -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
           
       - name: Compiler l'application Android (APK pour test direct)
         script: |
           cd android
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=$CM_KEYSTORE_PATH \
+            -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
           
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
