@@ -20,15 +20,14 @@ import { useAuth } from "@/auth/auth-context";
 import { usePatient } from "@/hooks/use-patient";
 import { colors, radius, spacing } from "@/theme";
 
-const PHASE_2_SCREENS = [
-  { icon: Pill, label: "Ordonnances" },
-  { icon: FlaskConical, label: "Examens" },
-  { icon: Salad, label: "Suivi & nutrition" },
-  { icon: Syringe, label: "Vaccinations" },
-  { icon: Shield, label: "Assurances" },
-  { icon: ShieldCheck, label: "Mes accès" },
-  { icon: History, label: "Journal" },
-];
+const ACTIVE_SCREENS = [
+  { icon: Pill, label: "Ordonnances", route: "/(tabs)/ordonnances" },
+  { icon: FlaskConical, label: "Examens", route: "/(tabs)/examens" },
+  { icon: Salad, label: "Suivi & nutrition", route: "/(tabs)/nutrition" },
+  { icon: Syringe, label: "Vaccinations", route: "/(tabs)/vaccinations" },
+  { icon: Shield, label: "Assurances", route: "/(tabs)/assurances" },
+  { icon: History, label: "Journal", route: "/(tabs)/journal" },
+] as const;
 
 export default function MoreScreen() {
   const { logout } = useAuth();
@@ -58,15 +57,22 @@ export default function MoreScreen() {
           </View>
           <ChevronRight size={18} color={colors.mutedForeground} />
         </Pressable>
-        {PHASE_2_SCREENS.map(({ icon: Icon, label }) => (
-          <View key={label} style={styles.row}>
+        {ACTIVE_SCREENS.map(({ icon: Icon, label, route }) => (
+          <Pressable key={label} style={styles.row} onPress={() => router.push(route)}>
             <View style={styles.rowGap}>
               <Icon size={18} color={colors.mutedForeground} />
               <Text style={styles.rowLabel}>{label}</Text>
             </View>
-            <Badge variant="outline" label="Bientôt disponible" />
-          </View>
+            <ChevronRight size={18} color={colors.mutedForeground} />
+          </Pressable>
         ))}
+        <View style={styles.row}>
+          <View style={styles.rowGap}>
+            <ShieldCheck size={18} color={colors.mutedForeground} />
+            <Text style={styles.rowLabel}>Mes accès</Text>
+          </View>
+          <Badge variant="outline" label="Bientôt disponible" />
+        </View>
       </View>
 
       <Button

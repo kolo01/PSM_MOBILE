@@ -49,6 +49,12 @@ export default function TabsLayout() {
         options={{ title: "Plus", tabBarIcon: ({ color, size }) => <Menu color={color} size={size} /> }}
       />
       <Tabs.Screen name="profil" options={{ href: null }} />
+      <Tabs.Screen name="ordonnances" options={{ href: null }} />
+      <Tabs.Screen name="examens" options={{ href: null }} />
+      <Tabs.Screen name="nutrition" options={{ href: null }} />
+      <Tabs.Screen name="vaccinations" options={{ href: null }} />
+      <Tabs.Screen name="assurances" options={{ href: null }} />
+      <Tabs.Screen name="journal" options={{ href: null }} />
     </Tabs>
   );
 }

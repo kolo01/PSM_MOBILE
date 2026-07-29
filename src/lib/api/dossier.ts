@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api-client";
+import { apiFetch, ApiError } from "@/lib/api-client";
 
 // ---------- Consultations ----------
 
@@ -266,4 +266,185 @@ export const rdvBookingApi = {
       method: "POST",
       body: JSON.stringify(dto),
     }),
+};
+
+// ---------- Nutrition ----------
+
+export interface NutritionPrescription {
+  id: string;
+  patientId: string;
+  regime: string;
+  instructions: string;
+  alimentsDeconseilles: string[];
+  prescripteur: string;
+  date: string;
+  objectifPoids?: number;
+  objectifPas?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const nutritionApi = {
+  get: async (patientId: string): Promise<NutritionPrescription | null> => {
+    try {
+      return await apiFetch(`/patients/${patientId}/nutrition`);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) return null;
+      throw err;
+    }
+  },
+};
+
+// ---------- Constantes (utilisé pour le suivi du poids) ----------
+
+export type VitalKey =
+  | "poids"
+  | "taille"
+  | "imc"
+  | "temperature"
+  | "fc"
+  | "tas"
+  | "tad"
+  | "spo2"
+  | "glycemie"
+  | "tour_taille"
+  | "fr"
+  | "perimetre_cranien";
+
+export interface VitalReading {
+  id: string;
+  patientId: string;
+  key: VitalKey;
+  date: string;
+  valeur: number;
+  source: "pro" | "iot" | "patient";
+  auteur?: string;
+  createdAt: string;
+}
+
+export const vitalsApi = {
+  list: (patientId: string, key?: VitalKey): Promise<VitalReading[]> =>
+    apiFetch(`/patients/${patientId}/vitals${key ? `?key=${key}` : ""}`),
+};
+
+// ---------- Vaccinations ----------
+
+export type VaccinType =
+  | "DTP"
+  | "Hépatite B"
+  | "Fièvre jaune"
+  | "Méningite"
+  | "COVID"
+  | "Rougeole"
+  | "Polio"
+  | "Rotavirus"
+  | "Autre";
+
+export interface Vaccin {
+  id: string;
+  patientId: string;
+  nom: string;
+  type: VaccinType;
+  date: string;
+  lot?: string;
+  professionnel?: string;
+  etablissement?: string;
+  rappel?: string;
+  imported: boolean;
+  validatedBy?: string;
+  validatedDate?: string;
+  createdAt: string;
+}
+
+export interface CreateVaccinPayload {
+  nom: string;
+  type: VaccinType;
+  date: string;
+  lot?: string;
+  professionnel?: string;
+  etablissement?: string;
+  rappel?: string;
+}
+
+export const vaccinationsApi = {
+  list: (patientId: string): Promise<Vaccin[]> => apiFetch(`/patients/${patientId}/vaccinations`),
+  create: (patientId: string, dto: CreateVaccinPayload): Promise<Vaccin> =>
+    apiFetch(`/patients/${patientId}/vaccinations`, { method: "POST", body: JSON.stringify(dto) }),
+};
+
+// ---------- Assurances ----------
+
+export type AssuranceType = "privee" | "mutuelle" | "cmu" | "employeur" | "voyage" | "autre";
+export type AssuranceStatut = "actif" | "expire" | "renouvellement";
+
+export type TauxCategories = Partial<{
+  consultation_g: number;
+  consultation_s: number;
+  hospi: number;
+  medic: number;
+  bio: number;
+  imagerie: number;
+  dentaire: number;
+  optique: number;
+  maternite: number;
+}>;
+
+export interface Assurance {
+  id: string;
+  patientId: string;
+  type: AssuranceType;
+  organisme: string;
+  numAdherent: string;
+  numCarte?: string;
+  dateDebut: string;
+  dateFin: string;
+  statut: AssuranceStatut;
+  tauxGeneral: number;
+  plafondXof?: number;
+  tauxCategories?: TauxCategories;
+  contactTel: string;
+  contactEmail?: string;
+  agence?: string;
+  beneficiaires: string[];
+  masquePour: string[];
+  createdAt: string;
+}
+
+export interface CreateAssurancePayload {
+  type: AssuranceType;
+  organisme: string;
+  numAdherent: string;
+  numCarte?: string;
+  dateDebut: string;
+  dateFin: string;
+  tauxGeneral: number;
+  plafondXof?: number;
+  tauxCategories?: TauxCategories;
+  contactTel: string;
+  contactEmail?: string;
+  agence?: string;
+}
+
+export const assurancesApi = {
+  list: (patientId: string): Promise<Assurance[]> => apiFetch(`/patients/${patientId}/assurances`),
+  create: (patientId: string, dto: CreateAssurancePayload): Promise<Assurance> =>
+    apiFetch(`/patients/${patientId}/assurances`, { method: "POST", body: JSON.stringify(dto) }),
+};
+
+// ---------- Journal d'accès ----------
+
+export interface AuditLogEntry {
+  id: string;
+  patientId?: string;
+  acteur: string;
+  acteurRole: "patient" | "pro" | "admin" | "systeme" | "client_api";
+  action: string;
+  ressource: string;
+  ip?: string;
+  resultat: "succes" | "echec";
+  createdAt: string;
+}
+
+export const journalApi = {
+  list: (patientId: string): Promise<AuditLogEntry[]> => apiFetch(`/patients/${patientId}/journal`),
 };
