@@ -5,6 +5,8 @@ workflows:
   expo-ios-build:
     name: Build PSM Mobile (iOS)
     max_build_duration: 120
+    integrations:
+      app_store_connect: CODEMAGIC_PSM_FINAL
     environment:
       node: 20
       xcode: latest
@@ -15,23 +17,37 @@ workflows:
     scripts:
       - name: Installer les dépendances npm
         script: npm install
-        
+
       - name: Générer le code natif iOS (Expo Prebuild)
         script: npx expo prebuild --platform ios --clean
-        
+
+      - name: Configurer la signature automatique Apple
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "ci.psm.mobile" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
+
       - name: Installer les dépendances iOS (CocoaPods)
         script: |
           cd ios
           pod install
-          
+
       - name: Compiler l'application iOS (Release .ipa)
         script: |
           xcode-project build-ipa \
             --workspace "ios/PSM.xcworkspace" \
             --scheme "PSM"
-          
+
     artifacts:
       - build/ios/ipa/*.ipa
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
 
   # --------------------------------------------------
   # WORKFLOW ANDROID
@@ -47,10 +63,10 @@ workflows:
     scripts:
       - name: Installer les dépendances npm
         script: npm install
-        
+
       - name: Générer le code natif Android (Expo Prebuild)
         script: npx expo prebuild --platform android --clean
-        
+
       - name: Compiler l'application Android (App Bundle pour le Play Store)
         script: |
           cd android
@@ -59,7 +75,7 @@ workflows:
             -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD \
             -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS \
             -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
-          
+
       - name: Compiler l'application Android (APK pour test direct)
         script: |
           cd android
@@ -68,7 +84,7 @@ workflows:
             -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD \
             -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS \
             -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
-          
+
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
       - android/app/build/outputs/apk/release/*.apk
