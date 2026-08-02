@@ -16,11 +16,11 @@
       "supportsTablet": true,
       "bundleIdentifier": "ci.psm.mobile",
       "developmentTeam": "P534537N35",
-      "buildNumber": "8"
+      "buildNumber": "9"
     },
     "android": {
       "package": "ci.psm.mobile",
-      "versionCode": 8,
+      "versionCode": 9,
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/icon.png"
