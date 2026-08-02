@@ -18,13 +18,13 @@ workflows:
       - name: Générer le code natif iOS (Expo Prebuild)
         script: npx expo prebuild --platform ios --clean
 
-      - name: Récupérer automatiquement certificats et profils Apple
+      - name: Récupérer et appliquer certificats et profils Apple
         script: |
           keychain initialize
           app-store-connect fetch-signing-files "ci.psm.mobile" \
             --type IOS_APP_STORE
           keychain add-certificates
-          xcode-project use-profiles
+          xcode-project use-profiles --project ios/PSM.xcodeproj
 
       - name: Installer les dépendances iOS (CocoaPods)
         script: |
