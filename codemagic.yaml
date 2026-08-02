@@ -26,7 +26,7 @@ workflows:
           cd ios
           pod install
 
-      - name: Appliquer les profils de signature Apple au projet Xcode
+      - name: Appliquer la signature Apple au projet Xcode
         script: xcode-project use-profiles
 
       - name: Compiler l'application iOS (Release .ipa)
