@@ -15,12 +15,12 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "ci.psm.mobile",
-      "appleTeamId": "P534537N35",
-      "buildNumber": "7"
+      "developmentTeam": "P534537N35",
+      "buildNumber": "8"
     },
     "android": {
       "package": "ci.psm.mobile",
-      "versionCode": 7,
+      "versionCode": 8,
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/icon.png"
