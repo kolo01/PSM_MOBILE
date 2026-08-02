@@ -8,9 +8,6 @@ workflows:
     integrations:
       app_store_connect: CODEMAGIC_PSM_FINAL
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: ci.psm.mobile
       node: 20
       xcode: latest
       cocoapods: default
@@ -21,13 +18,18 @@ workflows:
       - name: Générer le code natif iOS (Expo Prebuild)
         script: npx expo prebuild --platform ios --clean
 
+      - name: Récupérer automatiquement certificats et profils Apple
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "ci.psm.mobile" \
+            --type IOS_APP_STORE
+          keychain add-certificates
+          xcode-project use-profiles
+
       - name: Installer les dépendances iOS (CocoaPods)
         script: |
           cd ios
           pod install
-
-      - name: Appliquer la signature Apple au projet Xcode
-        script: xcode-project use-profiles
 
       - name: Compiler l'application iOS (Release .ipa)
         script: |
